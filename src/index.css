@@ -1,0 +1,288 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap");
+
+:root {
+    --ink: #0e2a3b;
+    --ink-2: #4a6373;
+    --ink-3: #7d95a3;
+    --line: #e2eaef;
+    --bg: #edf4f5;
+    --card: #ffffff;
+    --brand: #1464d2;
+    --brand-deep: #0b3f83;
+    --mint: #10b981;
+    --mint-soft: #e7f7f1;
+    --amber: #f59e0b;
+    --amber-soft: #fef4e2;
+    --red: #e03e3e;
+    --red-soft: #fdecec;
+    --slate-soft: #eff3f6;
+
+    --r-lg: 24px;
+    --r-md: 14px;
+    --r-sm: 10px;
+
+    --shadow:
+        0 18px 46px -18px rgba(14, 42, 59, 0.34),
+        0 3px 10px -4px rgba(14, 42, 59, 0.12);
+    --shadow-sm: 0 6px 18px -10px rgba(14, 42, 59, 0.3);
+
+    --sans: "DM Sans", system-ui, sans-serif;
+    --display: "Manrope", "DM Sans", system-ui, sans-serif;
+
+    font: 16px/150% var(--sans);
+    color-scheme: light dark;
+    color: var(--ink);
+    background: var(--bg);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark palette applies when the OS prefers dark (unless the user explicitly
+   chose light via the toggle), OR when the user explicitly chose dark. */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --ink: #eaf1f6;
+        --ink-2: #b9c7d2;
+        --ink-3: #8ca0af;
+        --line: #28323b;
+        --bg: #0b141b;
+        --card: #101a22;
+        --brand: #4c93ef;
+        --brand-deep: #2f6fc4;
+        --mint: #34d399;
+        --mint-soft: rgba(52, 211, 153, 0.12);
+        --amber: #fbbf24;
+        --amber-soft: rgba(251, 191, 36, 0.12);
+        --red: #f87171;
+        --red-soft: rgba(248, 113, 113, 0.12);
+        --slate-soft: rgba(255, 255, 255, 0.04);
+        --shadow:
+            0 18px 46px -18px rgba(0, 0, 0, 0.55),
+            0 3px 10px -4px rgba(0, 0, 0, 0.35);
+        --shadow-sm: 0 6px 18px -10px rgba(0, 0, 0, 0.5);
+    }
+}
+
+:root[data-theme="dark"] {
+    --ink: #eaf1f6;
+    --ink-2: #b9c7d2;
+    --ink-3: #8ca0af;
+    --line: #28323b;
+    --bg: #0b141b;
+    --card: #101a22;
+    --brand: #4c93ef;
+    --brand-deep: #2f6fc4;
+    --mint: #34d399;
+    --mint-soft: rgba(52, 211, 153, 0.12);
+    --amber: #fbbf24;
+    --amber-soft: rgba(251, 191, 36, 0.12);
+    --red: #f87171;
+    --red-soft: rgba(248, 113, 113, 0.12);
+    --slate-soft: rgba(255, 255, 255, 0.04);
+    --shadow:
+        0 18px 46px -18px rgba(0, 0, 0, 0.55),
+        0 3px 10px -4px rgba(0, 0, 0, 0.35);
+    --shadow-sm: 0 6px 18px -10px rgba(0, 0, 0, 0.5);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background:
+        linear-gradient(rgba(20, 100, 210, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 100, 210, 0.035) 1px, transparent 1px),
+        radial-gradient(
+            900px 560px at 8% -8%,
+            rgba(191, 224, 231, 0.75) 0%,
+            transparent 64%
+        ),
+        radial-gradient(
+            800px 520px at 92% 8%,
+            rgba(221, 241, 225, 0.8) 0%,
+            transparent 62%
+        ),
+        var(--bg);
+    background-size:
+        32px 32px,
+        32px 32px,
+        auto,
+        auto,
+        auto;
+    min-height: 100svh;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) body {
+        background: var(--bg);
+    }
+}
+
+:root[data-theme="dark"] body {
+    background: var(--bg);
+}
+
+#root {
+    min-height: 100svh;
+    background: transparent;
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--display);
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+p {
+    margin: 0;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+button {
+    font: inherit;
+}
+
+a {
+    color: inherit;
+}
+
+:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.btn-primary {
+    border: none;
+    border-radius: var(--r-md);
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #2180e5, #1464d2 55%, #0c4caa);
+    background-size: 140% 140%;
+    background-position: 0% 50%;
+    box-shadow: 0 12px 24px -12px rgba(11, 94, 215, 0.85);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.15s ease,
+        background-position 0.4s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+    box-shadow: 0 16px 30px -12px rgba(11, 94, 215, 0.95);
+    background-position: 100% 50%;
+}
+
+.btn-primary:focus-visible,
+.btn-ghost:focus-visible {
+    outline-offset: 4px;
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: scale(0.97);
+    box-shadow: 0 8px 16px -10px rgba(11, 94, 215, 0.85);
+}
+
+.btn-primary svg {
+    width: 16px;
+    height: 16px;
+    fill: #fff;
+}
+
+.btn-primary:disabled {
+    background: var(--slate-soft);
+    box-shadow: none;
+    color: var(--ink-3);
+    cursor: not-allowed;
+}
+
+.btn-primary:disabled svg {
+    fill: var(--ink-3);
+}
+
+.btn-ghost {
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 12px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.btn-ghost:hover {
+    border-color: var(--brand);
+    background: var(--slate-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -12px rgba(14, 42, 59, 0.35);
+}
+
+.btn-ghost:active {
+    transform: translateY(0) scale(0.97);
+}
+
+.btn-ghost svg {
+    width: 14px;
+    height: 14px;
+    fill: var(--ink-2);
+    transition: fill 0.2s ease;
+}
+
+.btn-ghost:hover svg {
+    fill: var(--brand);
+}
+
+@keyframes screen-enter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.screen-enter {
+    animation: screen-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

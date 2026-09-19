@@ -1,0 +1,113 @@
+.tip-card {
+    border-radius: var(--r-md);
+    padding: 17px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition:
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+}
+
+.tip-card:hover {
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.tip-card--blue {
+    background: linear-gradient(
+        135deg,
+        rgba(231, 243, 255, 0.95),
+        rgba(244, 250, 255, 0.9)
+    );
+    border: 1px solid #d1e4f4;
+}
+
+.tip-card--amber {
+    background: linear-gradient(135deg, #fff5df, #fffaf0);
+    border: 1px solid #f7e3be;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .tip-card--blue {
+        background: rgba(76, 147, 239, 0.1);
+        border-color: rgba(76, 147, 239, 0.3);
+    }
+
+    :root:not([data-theme="light"]) .tip-card--amber {
+        background: var(--amber-soft);
+        border-color: rgba(251, 191, 36, 0.3);
+    }
+}
+
+:root[data-theme="dark"] .tip-card--blue {
+    background: rgba(76, 147, 239, 0.1);
+    border-color: rgba(76, 147, 239, 0.3);
+}
+
+:root[data-theme="dark"] .tip-card--amber {
+    background: var(--amber-soft);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.tip-card__head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.tip-card__icon {
+    width: 23px;
+    height: 23px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    flex: none;
+}
+
+.tip-card__icon svg {
+    width: 13px;
+    height: 13px;
+    fill: #fff;
+}
+
+.tip-card--blue .tip-card__icon {
+    background: linear-gradient(140deg, #2e8bee, #0b5ed7);
+}
+
+.tip-card--amber .tip-card__icon {
+    background: linear-gradient(140deg, #f7b733, #e08706);
+}
+
+.tip-card__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--ink-2);
+    line-height: 1.6;
+}
+
+.tip-card__list li {
+    padding-left: 13px;
+    position: relative;
+}
+
+.tip-card__list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #9fbdd4;
+}
+
+.tip-card__list b {
+    color: var(--ink);
+    font-weight: 600;
+}

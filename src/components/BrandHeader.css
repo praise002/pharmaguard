@@ -1,0 +1,49 @@
+.brand-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 0;
+}
+
+.brand-header__identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.brand-header__mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(145deg, #2a8bea, #1464d2 46%, #0e9f7a);
+    box-shadow: 0 12px 22px -10px rgba(11, 94, 215, 0.85);
+}
+
+.brand-header__mark svg {
+    width: 20px;
+    height: 20px;
+    fill: #fff;
+}
+
+.brand-header__wordmark {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 21px;
+    letter-spacing: -0.02em;
+    background: linear-gradient(92deg, #0b5ed7, #0e9f7a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.brand-header__tagline {
+    font-size: 11px;
+    letter-spacing: 0.01em;
+    color: var(--ink-3);
+    margin-top: 1px;
+}
