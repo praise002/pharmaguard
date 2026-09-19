@@ -14,7 +14,7 @@
     justify-content: center;
     gap: 4px;
     height: 128px;
-    border: 1.5px dashed #a9c8d7;
+    border: 1.5px dashed #a8c4b2;
     border-radius: var(--r-md);
     background: color-mix(in srgb, var(--card) 72%, var(--slate-soft));
     color: var(--ink-2);
@@ -31,7 +31,7 @@
     transform: translateY(-2px);
     box-shadow: var(--shadow-sm);
     border-color: var(--brand);
-    background: color-mix(in srgb, var(--card) 58%, #e9f3ff);
+    background: color-mix(in srgb, var(--card) 58%, #e7f1e9);
 }
 
 .upload-slot__dropzone:hover .upload-slot__icon {
@@ -58,7 +58,7 @@
 .upload-slot__icon {
     width: 19px;
     height: 19px;
-    fill: #8caac2;
+    fill: #8aac98;
     margin-bottom: 3px;
     transition:
         fill 0.2s ease,

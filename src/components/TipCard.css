@@ -15,17 +15,13 @@
 }
 
 .tip-card--blue {
-    background: linear-gradient(
-        135deg,
-        rgba(231, 243, 255, 0.95),
-        rgba(244, 250, 255, 0.9)
-    );
-    border: 1px solid #d1e4f4;
+    background: linear-gradient(135deg, #e5f0e8, #f5f6f0);
+    border: 1px solid #cbded0;
 }
 
 .tip-card--amber {
-    background: linear-gradient(135deg, #fff5df, #fffaf0);
-    border: 1px solid #f7e3be;
+    background: linear-gradient(135deg, #f4ead7, #faf7ee);
+    border: 1px solid #e7d9ba;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -75,7 +71,7 @@
 }
 
 .tip-card--blue .tip-card__icon {
-    background: linear-gradient(140deg, #2e8bee, #0b5ed7);
+    background: linear-gradient(140deg, #3a9274, #1d6954);
 }
 
 .tip-card--amber .tip-card__icon {
@@ -104,7 +100,7 @@
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: #9fbdd4;
+    background: #9cb9a7;
 }
 
 .tip-card__list b {
