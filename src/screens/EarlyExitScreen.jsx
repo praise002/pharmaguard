@@ -1,5 +1,5 @@
 import PageLayout from '../components/PageLayout.jsx'
-import { CameraIcon, DocumentIcon, WarningIcon } from '../components/icons.jsx'
+import { CameraIcon, DocumentIcon, WarningIcon, AlertCircleIcon } from '../components/icons.jsx'
 import './EarlyExitScreen.css'
 
 const VARIANTS = {
@@ -13,6 +13,12 @@ const VARIANTS = {
     icon: DocumentIcon,
     heading: "We couldn't read this clearly",
     message: "We couldn't read this clearly. Please try again with better lighting or a closer photo.",
+  },
+  error: {
+    icon: AlertCircleIcon,
+    heading: 'Something went wrong',
+    message:
+      "We couldn't check this photo right now — this is usually a temporary connection or service issue. Please try again in a moment.",
   },
 }
 

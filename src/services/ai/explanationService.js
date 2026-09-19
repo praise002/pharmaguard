@@ -1,13 +1,12 @@
-import { explainWithGemini } from './geminiClient.js'
 import { explainWithOpenAI } from './openaiClient.js'
 import { buildExplanationPrompt } from './explanationPrompt.js'
 
 const OPENAI_TIMEOUT_MS = 10000
 
-// Explanation: OpenAI is primary, Gemini is the fallback (opposite of the
-// vision service, where Gemini is primary and OpenAI is the fallback).
+// Explanation: OpenAI only, no AI fallback. If this fails or times out, the
+// caller (ResultScreen) falls back to buildFallbackExplanation below — a
+// deterministic, non-AI explanation — rather than trying a second AI provider.
 export async function generateExplanation(verification, extraction) {
-  const geminiKey = import.meta.env.VITE_GEMINI_API_KEY
   const openaiKey = import.meta.env.VITE_OPENAI_API_KEY
   const prompt = buildExplanationPrompt(verification, extraction)
 
@@ -18,21 +17,15 @@ export async function generateExplanation(verification, extraction) {
     const text = await explainWithOpenAI(prompt, openaiKey, { signal: controller.signal })
     console.log('[explanation] served by openai')
     return { text, provider: 'openai' }
-  } catch (err) {
-    console.warn('[explanation] openai failed, falling back to gemini:', err.message)
   } finally {
     clearTimeout(timeoutId)
   }
-
-  const text = await explainWithGemini(prompt, geminiKey)
-  console.log('[explanation] served by gemini')
-  return { text, provider: 'gemini' }
 }
 
 /**
- * Deterministic, non-AI explanation used only if both Gemini and OpenAI
- * fail — so the result screen always has an accurate (if less polished)
- * explanation to show instead of a dead end during a live demo.
+ * Deterministic, non-AI explanation used only if OpenAI fails — so the
+ * result screen always has an accurate (if less polished) explanation to
+ * show instead of a dead end during a live demo.
  */
 export function buildFallbackExplanation(verification) {
   if (verification.status === 'confirmed_alert') {

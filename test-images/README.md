@@ -1,6 +1,6 @@
 # Test images
 
-Fixtures used for manual and scripted end-to-end testing (M9). Each one exercises a specific path through `analyzeMedicineImages` → `verifyMedicine` → `generateExplanation`. Verified outcomes below are from real API calls (OpenAI primary / Gemini fallback for vision), not mocked.
+Fixtures used for manual and scripted end-to-end testing (M9). Each one exercises a specific path through `analyzeMedicineImages` → `verifyMedicine` → `generateExplanation`. Verified outcomes below are from real API calls, not mocked. Vision is Gemini-only (primary key, then a second Gemini key as fallback); explanation is OpenAI-only, no AI fallback — see `docs/TODO.md` for how this settled after a couple of corrections.
 
 | File | Type | Expected result | Verified outcome |
 |---|---|---|---|
@@ -18,7 +18,7 @@ Before a prompt/config fix, `not-a-drug.png` and `blurry-unreadable.png` caused 
 
 Root cause: no `temperature` was set on the OpenAI call (defaults to 1.0, encouraging creative completion), and the anti-hallucination instruction wasn't forceful enough for that provider's default behavior.
 
-Fix (in `src/services/ai/openaiClient.js` and `src/services/ai/geminiClient.js`): `temperature: 0` on both providers' extraction calls, plus a much more explicit instruction in `src/services/ai/schema.js` telling the model that "looks like a plausible product" is never sufficient — only report a value if the exact characters are legible in the image. Re-tested after the fix: both scenarios now correctly return `is_drug: false` / all-null-with-low-confidence respectively.
+Fix (at the time, applied to both providers' extraction calls — OpenAI was still used for vision then; it's since been removed entirely, see `docs/TODO.md`): `temperature: 0`, plus a much more explicit instruction in `src/services/ai/schema.js` telling the model that "looks like a plausible product" is never sufficient — only report a value if the exact characters are legible in the image. Re-tested after the fix: both scenarios now correctly return `is_drug: false` / all-null-with-low-confidence respectively. `temperature: 0` remains on the Gemini extraction call today.
 
 ## Known gaps
 

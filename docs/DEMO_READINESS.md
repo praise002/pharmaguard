@@ -38,5 +38,7 @@ Confirmed via the same real-browser method (actual upload → actual click → a
 
 ## Known risks going into the demo
 
-- **Gemini free-tier quota (20 req/day)** was exhausted by this session's testing. It resets daily, but confirm it has quota again before the live run — if it doesn't, the app still works correctly (falls back to OpenAI for vision), just without exercising the primary path.
-- Fallback behavior (Gemini→OpenAI for vision, OpenAI→Gemini for explanation) has been verified structurally and via genuine failures during testing, but do one fresh full-fallback check when both keys have quota, close to demo time.
+- **Vision is Gemini-only now** (primary key → a second Gemini key as fallback; OpenAI is no longer involved in vision at all). **Explanation is OpenAI-only, no AI fallback** (falls back to a deterministic non-AI explanation if it fails). See `docs/TODO.md` for why this changed twice.
+- **Gemini free-tier quota (20 req/day per key)** was exhausted by this session's testing on both keys at different points. It resets daily — confirm both keys have quota before the live run.
+- **`gemini-2.5-flash` was retired by Google mid-build.** The app now uses `gemini-3.6-flash`, which has shown intermittent `503 UNAVAILABLE` ("high demand") responses on both keys simultaneously during testing. This is external and outside the app's control — do a live smoke test with both keys shortly before demoing, since a double-503 means vision fails outright (there's no third fallback by design).
+- Fallback behavior (Gemini primary key → Gemini fallback key) has been verified with genuine failures during testing.

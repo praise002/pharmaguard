@@ -48,7 +48,9 @@ function App() {
       setScreen('result')
     } catch (err) {
       console.error('Analysis failed:', err)
-      setScreen('upload')
+      setExitVariant('error')
+      setMissingFields([])
+      setScreen('early_exit')
     }
   }
 

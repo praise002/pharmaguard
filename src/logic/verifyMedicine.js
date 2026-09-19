@@ -61,18 +61,26 @@ function isExpired(dateStr) {
 }
 
 /**
- * Step 5: exact match against alerts.json. Only batch_no and the one
- * confirmed-fake registration number in the dataset (alert 042/2026) count —
- * everything else is a deterministic flag, not a confirmed alert.
+ * Step 5: exact match against alerts.json. Batch number (exact or, for
+ * alerts that specify one, a prefix) and the confirmed-fake registration
+ * numbers in the dataset count — everything else is a deterministic flag,
+ * not a confirmed alert.
  *
  * Two narrow exceptions, both meaning "no single batch is the problem — the
  * whole class is":
- * - type "unregistered_all_stock" (e.g. Otrivin, 019/2026): NAFDAC confirmed
- *   the manufacturer isn't importing ANY of that product, so a product-name
- *   match is itself the exact match.
- * - alerts with an "active_ingredient" (e.g. Levamisole, 030/2026): the
- *   recall applies to every brand containing that ingredient, not a specific
- *   product or batch, so an ingredient match is itself the exact match.
+ * - alerts flagged "whole_stock_alert" (e.g. Otrivin 019/2026, where NAFDAC
+ *   confirmed the manufacturer isn't importing ANY of that product; or
+ *   ViroActive+ 020/2026, an entirely unapproved drug): a product-name match
+ *   is itself the exact match. This is a dedicated flag rather than being
+ *   keyed off `type` — `type` is a descriptive category for humans reading
+ *   the dataset, and two alerts can need this same matching behavior for
+ *   different real-world reasons (a legitimate manufacturer halting imports
+ *   vs. a drug that was never approved at all), so it shouldn't be inferred
+ *   from one specific type string.
+ * - alerts with an "active_ingredient" (e.g. Levamisole 030/2026,
+ *   Chlorpromazine 11/2025): the recall applies to every brand containing
+ *   that ingredient, not a specific product or batch, so an ingredient match
+ *   is itself the exact match.
  * Neither extends to alerts lacking a batch_no for other reasons (e.g.
  * Forxiga lookalikes), where genuine stock does exist and only some
  * counterfeits mimic it — those stay in the fuzzy lookalike check below.
@@ -87,14 +95,13 @@ export function findExactAlertMatch(extraction, alerts) {
     if (batchNo && alert.batch_no && normalize(alert.batch_no) === batchNo) {
       return alert
     }
+    if (batchNo && alert.batch_prefix && batchNo.startsWith(normalize(alert.batch_prefix))) {
+      return alert
+    }
     if (regNo && alert.fake_reg_no && normalize(alert.fake_reg_no) === regNo) {
       return alert
     }
-    if (
-      alert.type === 'unregistered_all_stock' &&
-      productWord &&
-      productWord === firstWord(alert.product)
-    ) {
+    if (alert.whole_stock_alert && productWord && productWord === firstWord(alert.product)) {
       return alert
     }
     if (
@@ -109,6 +116,20 @@ export function findExactAlertMatch(extraction, alerts) {
 }
 
 /**
+ * Some alerts list several distinct products in one comma-separated `product`
+ * string (e.g. "Nitras, Kadin 2, Acefyl, Loratadine 24"). Split those into
+ * separate candidate brand words instead of only ever looking at the first
+ * one — otherwise the other three names are structurally unreachable by the
+ * lookalike check below, not just unlikely to match.
+ */
+function brandWordsFor(alert) {
+  return String(alert.product || '')
+    .split(',')
+    .map((segment) => firstWord(segment))
+    .filter(Boolean)
+}
+
+/**
  * Step 6c: fuzzy-match the extracted product name's first word against the
  * first word of every genuine product name in the dataset (e.g. "Coglaet" vs
  * "Colgate", "Ulmicort" vs "Pulmicort"). An exact word match is excluded here
@@ -120,12 +141,13 @@ export function findBrandLookalike(productName, alerts) {
 
   let best = null
   for (const alert of alerts) {
-    const brandWord = firstWord(alert.product)
-    if (brandWord.length < LOOKALIKE_MIN_WORD_LENGTH || brandWord === extractedWord) continue
+    for (const brandWord of brandWordsFor(alert)) {
+      if (brandWord.length < LOOKALIKE_MIN_WORD_LENGTH || brandWord === extractedWord) continue
 
-    const ratio = similarityRatio(extractedWord, brandWord)
-    if (ratio >= LOOKALIKE_SIMILARITY_THRESHOLD && (!best || ratio > best.ratio)) {
-      best = { ratio, alert }
+      const ratio = similarityRatio(extractedWord, brandWord)
+      if (ratio >= LOOKALIKE_SIMILARITY_THRESHOLD && (!best || ratio > best.ratio)) {
+        best = { ratio, alert }
+      }
     }
   }
   return best

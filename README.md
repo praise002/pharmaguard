@@ -33,14 +33,16 @@ These aren't aspirational — they're enforced in the prompts, the verification 
 
 ### AI provider strategy
 
-Two independent AI use cases, each with a primary/fallback pair running in *opposite* directions:
+Vision and explanation are two fully independent AI use cases, each pinned to a single provider — they are never mixed:
 
-| Use case | Primary | Fallback | Why |
-|---|---|---|---|
-| Vision (image → structured data) | Gemini (`gemini-2.5-flash`) | OpenAI (`gpt-4o`) | |
-| Explanation (structured data → prose) | OpenAI (`gpt-4o`) | Gemini (`gemini-2.5-flash`) | |
+| Use case | Provider | Fallback |
+|---|---|---|
+| Vision (image → structured data) | Gemini (`gemini-3.6-flash`) only | A second Gemini API key (`VITE_GEMINI_FALLBACK_API_KEY`), retried if the primary key fails or times out |
+| Explanation (structured data → prose) | OpenAI (`gpt-4o`) only | None — if it fails, the UI falls back to a deterministic, non-AI explanation built directly from the verification result (`buildFallbackExplanation`) |
 
-Both extraction calls run at `temperature: 0` — this matters more than it sounds: an earlier version without it caused a model to fabricate a complete fake product (name, manufacturer, batch number, NAFDAC reg. no.) for an image that had no readable text at all. Fixed by pinning temperature and hardening the prompt; see `test-images/README.md` for the full writeup.
+The vision extraction call runs at `temperature: 0` — this matters more than it sounds: an earlier version without it caused the model to fabricate a complete fake product (name, manufacturer, batch number, NAFDAC reg. no.) for an image that had no readable text at all. Fixed by pinning temperature and hardening the prompt; see `test-images/README.md` for the full writeup.
+
+> **Model note**: `gemini-2.5-flash` was retired by Google mid-build ("no longer available to new users"); the app now uses `gemini-3.6-flash` per Google's own migration guidance. That model has also shown intermittent `503 UNAVAILABLE` ("high demand") responses during testing — transient on Google's side, not a bug here, but worth a pre-demo smoke test.
 
 ## Project structure
 
@@ -56,8 +58,10 @@ src/
 test-images/            fixtures for manual + scripted end-to-end testing, with a README
   README.md             what each fixture covers and its last verified outcome
 scripts/test-e2e.mjs    runs the real extraction → verification pipeline against test-images/
-MILESTONES.md           the build plan this project was executed against
-TODO.md                 running progress log — what's done, what's left, and why
+docs/
+  MILESTONES.md          the build plan this project was executed against
+  TODO.md                running progress log — what's done, what's left, and why
+  prompt.md              the original hackathon brief this app was built from
 DEMO_READINESS.md       timing/disclaimer/prop-readiness check before a live demo
 ```
 
@@ -74,7 +78,7 @@ DEMO_READINESS.md       timing/disclaimer/prop-readiness check before a live dem
 ### Prerequisites
 
 - Node.js 20+ (developed against Node 24)
-- A [Google Gemini API key](https://aistudio.google.com/apikey) (free tier is fine)
+- Two [Google Gemini API keys](https://aistudio.google.com/apikey) (free tier is fine) — a primary and a fallback, ideally from separate projects so they have independent daily quotas
 - An [OpenAI API key](https://platform.openai.com/api-keys)
 
 ### Setup
@@ -86,11 +90,12 @@ npm install
 Create a `.env` file in the project root:
 
 ```
-VITE_GEMINI_API_KEY=your-gemini-key
+VITE_GEMINI_API_KEY=your-primary-gemini-key
+VITE_GEMINI_FALLBACK_API_KEY=your-second-gemini-key
 VITE_OPENAI_API_KEY=your-openai-key
 ```
 
-> The `VITE_` prefix is required — Vite only exposes prefixed variables to client-side code. Keys are bundled into the client-side JavaScript at build time (this app has no backend), which is an accepted tradeoff for a hackathon demo — see `TODO.md` for the reasoning. Do not commit `.env`.
+> The `VITE_` prefix is required — Vite only exposes prefixed variables to client-side code. Keys are bundled into the client-side JavaScript at build time (this app has no backend), which is an accepted tradeoff for a hackathon demo — see `docs/TODO.md` for the reasoning. Do not commit `.env`.
 
 ```bash
 npm run dev
@@ -108,7 +113,7 @@ npm run lint      # oxlint
 
 ## Testing
 
-There's no traditional test runner wired into `npm test` — verification was done with real API calls throughout the build (see `TODO.md` for the full history), plus two reusable pieces:
+There's no traditional test runner wired into `npm test` — verification was done with real API calls throughout the build (see `docs/TODO.md` for the full history), plus two reusable pieces:
 
 ```bash
 # Full extraction -> verification pipeline against the fixtures in test-images/,
@@ -131,7 +136,8 @@ Reads `VITE_GEMINI_API_KEY`/`VITE_OPENAI_API_KEY` from your local `.env` and pas
 - **No physical mock packs yet** for the spec's suggested demo drugs (a pack printed with batch `AC3N`, and an Otrivin pack) — `test-images/` has synthetic (rendered-text) versions that validate the pipeline but aren't a substitute for a real prop in a live demo. A real Levamisole-containing product (Retrax Worm Syrup) is available as a photographed fixture and triggers a `confirmed_alert` via active-ingredient matching.
 - **Gemini's free tier caps at 20 requests/day.** The app transparently falls back to OpenAI when this is hit, but expect to see `[vision] gemini failed, falling back to openai` in the console during heavy testing.
 - **No backend.** API keys are visible in the shipped client bundle. Fine for a demo with free-tier keys; not appropriate for a deployment with real usage limits or billing exposure without adding a serverless proxy.
-- **Not deployed yet.** `MILESTONES.md` has the planned Vercel deployment steps.
+- **Not deployed yet.** `docs/MILESTONES.md` has the planned Vercel deployment steps.
+- **Gemini model migration risk.** `gemini-2.5-flash` was retired by Google mid-build; the app now targets `gemini-3.6-flash`, which showed intermittent `503` "high demand" responses during testing on both API keys simultaneously. Do a live smoke test before demoing.
 
 ## Explicitly out of scope
 

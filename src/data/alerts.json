@@ -20,6 +20,7 @@
   {
     "alert_id": "019/2026",
     "type": "unregistered_all_stock",
+    "whole_stock_alert": true,
     "product": "Otrivin Nasal Drops (0.05% children's, 0.1% adult)",
     "issue": "Marketing Authorization Holder (GSK) confirmed it is not currently importing any Otrivin products — all circulating stock is unregistered/counterfeit",
     "source": "https://nafdac.gov.ng/public-alert-no-019-2026-alert-on-mop-up-of-all-otrivin-nasal-drops-0-05-and-0-1/"
@@ -74,13 +75,6 @@
     "source": "https://nafdac.gov.ng/public-alert-no-038-2026-alert-on-adulterated-and-substandard-medicines-nitras-kadin-2-acefyl-and-loratadine-24-recalled-by-the-drug-regulatory-authority-of-pakistan-drap/"
   },
   {
-    "alert_id": "028/2026",
-    "type": "foreign_recall",
-    "product": "Children's Ibuprofen Oral Suspension",
-    "issue": "US recall — potential contamination with foreign material",
-    "source": "https://nafdac.gov.ng/public-alert-no-028-2026-recall-of-childrens-ibuprofen-oral-suspension-in-the-united-states-due-to-potential-contamination-with-foreign-material/"
-  },
-  {
     "alert_id": "025/2026",
     "type": "foreign_recall",
     "product": "Citro-Soda Regular Antacid",
@@ -89,16 +83,9 @@
     "source": "https://nafdac.gov.ng/public-alert-no-025-2026-alert-on-the-recall-specific-batches-of-antacid-citro-soda-regular-in-south-africa/"
   },
   {
-    "alert_id": "08/2026",
-    "type": "foreign_recall_infant_formula",
-    "product": "Aptamil / Cow & Gate Infant & Follow-on Milk Formula",
-    "manufacturer": "Danone Nutricia",
-    "issue": "Precautionary recall — potential cereulide toxin contamination (Nigeria-market product NOT affected)",
-    "source": "https://nafdac.gov.ng/public-alert-no-08-2026-danone-nutricia-recalls-several-batches-of-aptamil-and-cow-and-gate-first-infant-milk-and-follow-on-milk-formula-products-due-to-potential-contamination-with-cereulide-toxin/"
-  },
-  {
     "alert_id": "020/2026",
     "type": "unregistered_fraudulent_claim",
+    "whole_stock_alert": true,
     "product": "ViroActive+",
     "issue": "Unregistered drug falsely purported to cure HIV",
     "source": "https://nafdac.gov.ng/public-alert-no-020-2026-alert-on-unregistered-viroactive-drug-purported-to-cure-hiv/"
@@ -108,6 +95,7 @@
     "type": "foreign_recall_impurity",
     "product": "Chlorpromazine Hydrochloride Tablets USP 10mg",
     "manufacturer": "Zydus Pharmaceuticals",
+    "active_ingredient": "Chlorpromazine",
     "issue": "US recall — nitrosamine impurity exceeding safety limits",
     "source": "https://nafdac.gov.ng/public-alert-no-11-2025-recall-of-various-products-by-sun-pharma-glenmark-and-zydus-pharmaceuticals-over-manufacturing-issues/"
   },

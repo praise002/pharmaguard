@@ -48,20 +48,6 @@ export function buildGeminiResponseSchema() {
   }
 }
 
-export function buildOpenAiResponseSchema() {
-  return {
-    type: 'object',
-    properties: Object.fromEntries(
-      EXTRACTION_FIELDS.map((f) => [
-        f.name,
-        f.nullable ? { type: [f.type, 'null'] } : { type: f.type },
-      ]),
-    ),
-    required: EXTRACTION_FIELDS.map((f) => f.name),
-    additionalProperties: false,
-  }
-}
-
 export function validateExtractionResult(obj) {
   if (!obj || typeof obj !== 'object') {
     throw new Error('Extraction result is not an object')
