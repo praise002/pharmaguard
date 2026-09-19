@@ -44,7 +44,7 @@ function UploadScreen({ onSubmit }) {
                     <span className="upload-screen__eyebrow">
                         PHARMAGUARD / MEDICINE CHECK
                     </span>
-                    <h1>Check a medicine before you take it.</h1>
+                    <h1>Scan it. Check it. Take it safely.</h1>
                     <p className="upload-screen__lede">
                         Photograph a medicine pack and get an instant check
                         against NAFDAC's published alerts.
