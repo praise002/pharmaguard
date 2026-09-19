@@ -11,6 +11,7 @@ Fixtures used for manual and scripted end-to-end testing (M9). Each one exercise
 | `augmentin-partial-read.png` | real photo (user-provided) | `flagged` **or** `no_flags_found` | ⚠️ Genuinely variable — this is a composite of 4 sub-photos (foil, blister, box front/back) at different legibility. Which fields read cleanly varies by run. The only outcomes that would be a real bug here are `confirmed_alert` (false positive) or fabricated field values — neither has occurred. |
 | `not-a-drug.png` | synthetic (generated) | `not_a_drug` | ✅ Matches. |
 | `blurry-unreadable.png` | synthetic (heavy Gaussian blur of `augmentin-expired-flagged.png`) | `unreadable` | ✅ Matches. |
+| `paracetamol-clean-no-flags.png` | synthetic (generated) | `no_flags_found` | ✅ Verified via direct `verifyMedicine()` call with the label's exact field values (no vision API call spent) — see `docs/TODO.md`. Not yet run through the real vision pipeline; do that before the demo if quota allows. Closes a real gap: every other fixture here deliberately triggers `confirmed_alert`/`flagged`/`unreadable`/`not_a_drug` — this was the only one of the four statuses with zero test coverage, including no test for the most common real-world case (an ordinary, non-recalled medicine). Product/batch/reg-no/ingredient were all chosen to not match anything in `alerts.json`, and not be a fuzzy lookalike of any listed brand. |
 
 ## Important finding from building this set
 

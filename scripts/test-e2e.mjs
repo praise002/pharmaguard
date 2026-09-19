@@ -61,6 +61,11 @@ const SCENARIOS = [
     expectStatus: 'not_a_drug',
   },
   {
+    name: 'paracetamol-clean-no-flags.png -> no_flags_found',
+    images: ['paracetamol-clean-no-flags.png'],
+    expectStatus: 'no_flags_found',
+  },
+  {
     // A heavily-blurred real photo. Different models draw the line between
     // "this is a drug package but unreadable" and "I can't tell it's a drug
     // package at all" slightly differently on genuinely ambiguous input --
