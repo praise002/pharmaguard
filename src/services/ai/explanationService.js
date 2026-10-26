@@ -1,29 +1,26 @@
-import { explainWithOpenAI } from './openaiClient.js'
-import { buildExplanationPrompt } from './explanationPrompt.js'
+import { postJson } from './apiClient.js'
 
-const OPENAI_TIMEOUT_MS = 10000
+// Server-side OpenRouter call times out at 10s (see api/explain.js); a little
+// headroom on top for the round trip.
+const EXPLANATION_TIMEOUT_MS = 12000
 
-// Explanation: OpenAI only, no AI fallback. If this fails or times out, the
-// caller (ResultScreen) falls back to buildFallbackExplanation below — a
-// deterministic, non-AI explanation — rather than trying a second AI provider.
-export async function generateExplanation(verification, extraction) {
-  const openaiKey = import.meta.env.VITE_OPENAI_API_KEY
-  const prompt = buildExplanationPrompt(verification, extraction)
-
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS)
-
-  try {
-    const text = await explainWithOpenAI(prompt, openaiKey, { signal: controller.signal })
-    console.log('[explanation] served by openai')
-    return { text, provider: 'openai' }
-  } finally {
-    clearTimeout(timeoutId)
-  }
+// Explanation: OpenRouter only, via /api/explain, no AI fallback. If this
+// fails or times out, the caller (ResultScreen) falls back to
+// buildFallbackExplanation below — a deterministic, non-AI explanation —
+// rather than trying a second AI provider. Only the extraction is sent; the
+// server re-runs verification itself before building the prompt.
+export async function generateExplanation(extraction) {
+  const result = await postJson(
+    '/api/explain',
+    { extraction },
+    { signal: AbortSignal.timeout(EXPLANATION_TIMEOUT_MS) },
+  )
+  console.log(`[explanation] served by ${result.provider}`)
+  return result
 }
 
 /**
- * Deterministic, non-AI explanation used only if OpenAI fails — so the
+ * Deterministic, non-AI explanation used only if OpenRouter fails — so the
  * result screen always has an accurate (if less polished) explanation to
  * show instead of a dead end during a live demo.
  */

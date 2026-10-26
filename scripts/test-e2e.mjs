@@ -15,15 +15,14 @@ const ROOT = path.join(__dirname, '..')
 const SRC = path.join(ROOT, 'src')
 const IMAGES = path.join(ROOT, 'test-images')
 
-const { extractWithGemini } = await import(path.join(SRC, 'services/ai/geminiClient.js'))
+const { extractWithGemini } = await import(path.join(ROOT, 'api/_lib/gemini.js'))
 const { verifyMedicine } = await import(path.join(SRC, 'logic/verifyMedicine.js'))
 
 const alerts = JSON.parse(readFileSync(path.join(SRC, 'data/alerts.json')))
 
 function loadImage(filename) {
   const filePath = path.join(IMAGES, filename)
-  const buffer = readFileSync(filePath)
-  return new File([buffer], filename, { type: 'image/png' })
+  return { mimeType: 'image/png', data: readFileSync(filePath).toString('base64') }
 }
 
 const SCENARIOS = [
@@ -88,11 +87,11 @@ for (const scenario of SCENARIOS) {
   try {
     let extraction
     try {
-      extraction = await extractWithGemini(files, process.env.VITE_GEMINI_API_KEY)
+      extraction = await extractWithGemini(files, process.env.GEMINI_API_KEY)
       console.log('provider: gemini (primary key)')
     } catch (err) {
       console.log('gemini (primary key) failed, retrying with fallback key:', err.message.split('\n')[0])
-      extraction = await extractWithGemini(files, process.env.VITE_GEMINI_FALLBACK_API_KEY)
+      extraction = await extractWithGemini(files, process.env.GEMINI_FALLBACK_API_KEY)
       console.log('provider: gemini (fallback key)')
     }
     console.log('extraction:', extraction)

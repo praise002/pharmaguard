@@ -56,7 +56,7 @@ function ResultScreen({ verification, extraction, onCheckAnother }) {
     setExplanation(null)
     setUsedFallback(false)
 
-    generateExplanation(verification, extraction)
+    generateExplanation(extraction)
       .then((result) => {
         if (!cancelled) setExplanation(result.text)
       })

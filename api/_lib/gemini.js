@@ -1,5 +1,8 @@
-import { EXTRACTION_INSTRUCTION, buildGeminiResponseSchema, validateExtractionResult } from './schema.js'
-import { fileToBase64 } from './imageUtils.js'
+import {
+  EXTRACTION_INSTRUCTION,
+  buildGeminiResponseSchema,
+  validateExtractionResult,
+} from '../../src/services/ai/schema.js'
 
 // A Google-maintained alias (always points at their current stable lite
 // model) rather than a pinned version number — pinned versions have been
@@ -9,12 +12,14 @@ import { fileToBase64 } from './imageUtils.js'
 // several real extraction calls, vs. intermittent 503s on gemini-3.6-flash.
 const GEMINI_MODEL = 'gemini-flash-lite-latest'
 
+// images: [{ mimeType, data }] where data is base64 — the browser encodes
+// them before POSTing to /api/extract.
 export async function extractWithGemini(images, apiKey, { signal } = {}) {
   if (!apiKey) throw new Error('Missing Gemini API key')
 
   const parts = [{ text: EXTRACTION_INSTRUCTION }]
-  for (const file of images) {
-    parts.push({ inlineData: { mimeType: file.type, data: await fileToBase64(file) } })
+  for (const image of images) {
+    parts.push({ inlineData: { mimeType: image.mimeType, data: image.data } })
   }
 
   const res = await fetch(

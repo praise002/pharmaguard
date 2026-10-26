@@ -2,6 +2,8 @@
 
 A web app that lets someone photograph a medicine pack and get an instant, honest check against NAFDAC's own published public alerts — built for a one-day AI hackathon (Social Impact / Health track).
 
+**Live demo:** https://pharmaguard-gray.vercel.app/
+
 ## The problem
 
 Nigeria has a serious counterfeit drug problem. The official verification system (scratch a panel, text a code, wait for an SMS reply) is unreliable in practice, so most people never verify what they buy — not because they don't care, but because the existing tool is slow and unreliable.
@@ -37,8 +39,8 @@ Vision and explanation are two fully independent AI use cases, each pinned to a 
 
 | Use case | Provider | Fallback |
 |---|---|---|
-| Vision (image → structured data) | Gemini (`gemini-3.6-flash`) only | A second Gemini API key (`VITE_GEMINI_FALLBACK_API_KEY`), retried if the primary key fails or times out |
-| Explanation (structured data → prose) | OpenAI (`gpt-4o`) only | None — if it fails, the UI falls back to a deterministic, non-AI explanation built directly from the verification result (`buildFallbackExplanation`) |
+| Vision (image → structured data) | Gemini (`gemini-3.6-flash`) only | A second Gemini API key (`GEMINI_FALLBACK_API_KEY`), retried server-side if the primary key fails or times out |
+| Explanation (structured data → prose) | OpenRouter (`openai/gpt-4o`) only | None — if it fails, the UI falls back to a deterministic, non-AI explanation built directly from the verification result (`buildFallbackExplanation`) |
 
 The vision extraction call runs at `temperature: 0` — this matters more than it sounds: an earlier version without it caused the model to fabricate a complete fake product (name, manufacturer, batch number, NAFDAC reg. no.) for an image that had no readable text at all. Fixed by pinning temperature and hardening the prompt; see `test-images/README.md` for the full writeup.
 
@@ -50,13 +52,17 @@ The vision extraction call runs at `temperature: 0` — this matters more than i
 src/
   screens/            UploadScreen, ProcessingScreen, ResultScreen, EarlyExitScreen
   components/          PageLayout, BrandHeader, ThemeToggle, TipCard, ImageUploadSlot, icons
-  services/ai/         geminiClient, openaiClient, visionService, explanationService,
+  services/ai/         visionService, explanationService, apiClient (calls /api),
                         explanationPrompt, schema (shared extraction schema/prompt), imageUtils
   logic/               verifyMedicine (pure JS verification), stringSimilarity, buildSummary
   data/alerts.json      the NAFDAC alert dataset (bundled, static — no database)
   constants.js          disclaimer text, status labels/advice (single source of truth)
 test-images/            fixtures for manual + scripted end-to-end testing, with a README
   README.md             what each fixture covers and its last verified outcome
+api/
+  extract.js            POST /api/extract — Gemini vision, primary → fallback key
+  explain.js            POST /api/explain — re-runs verification, then OpenRouter
+  _lib/                 gemini + openrouter clients (server-only, hold no keys themselves)
 scripts/test-e2e.mjs    runs the real extraction → verification pipeline against test-images/
 docs/
   MILESTONES.md          the build plan this project was executed against
@@ -68,10 +74,11 @@ DEMO_READINESS.md       timing/disclaimer/prop-readiness check before a live dem
 ## Tech stack
 
 - **Frontend**: React 19 + Vite, plain CSS (no framework), mobile-first responsive design
-- **AI**: Google Gemini API (vision-capable, free tier) and OpenAI GPT-4o, used as described above
+- **AI**: Google Gemini API (vision-capable, free tier) and GPT-4o via OpenRouter, used as described above
 - **Verification logic**: plain, auditable JavaScript — deliberately *not* AI, so every "flagged" or "confirmed" reason is traceable and testable
-- **Data**: a static bundled JSON file (`alerts.json`) — no backend, no database, no accounts, nothing persists between sessions
-- **Deployment target**: static site (Vercel or any static host / the included Docker setup)
+- **Data**: a static bundled JSON file (`alerts.json`) — no database, no accounts, nothing persists between sessions
+- **Backend**: two Vercel serverless functions in `api/` that hold the AI provider keys and proxy the calls, so no key ever reaches the browser
+- **Deployment**: Vercel only, at https://pharmaguard-gray.vercel.app/
 
 ## Getting started
 
@@ -79,7 +86,7 @@ DEMO_READINESS.md       timing/disclaimer/prop-readiness check before a live dem
 
 - Node.js 20+ (developed against Node 24)
 - Two [Google Gemini API keys](https://aistudio.google.com/apikey) (free tier is fine) — a primary and a fallback, ideally from separate projects so they have independent daily quotas
-- An [OpenAI API key](https://platform.openai.com/api-keys)
+- An [OpenRouter API key](https://openrouter.ai/keys)
 
 ### Setup
 
@@ -87,27 +94,31 @@ DEMO_READINESS.md       timing/disclaimer/prop-readiness check before a live dem
 npm install
 ```
 
-Create a `.env` file in the project root:
-
-```
-VITE_GEMINI_API_KEY=your-primary-gemini-key
-VITE_GEMINI_FALLBACK_API_KEY=your-second-gemini-key
-VITE_OPENAI_API_KEY=your-openai-key
-```
-
-> The `VITE_` prefix is required — Vite only exposes prefixed variables to client-side code. Keys are bundled into the client-side JavaScript at build time (this app has no backend), which is an accepted tradeoff for a hackathon demo — see `docs/TODO.md` for the reasoning. Do not commit `.env`.
+Copy the example env file and fill in your keys:
 
 ```bash
-npm run dev
+cp .env.example .env
 ```
 
-Open the printed local URL. Uploading a photo requires real API keys with quota available — see `test-images/` for fixtures if you want to test without a physical pack.
+```
+GEMINI_API_KEY=your-primary-gemini-key
+GEMINI_FALLBACK_API_KEY=your-second-gemini-key
+OPENROUTER_API_KEY=your-openrouter-key
+```
+
+> These deliberately have **no** `VITE_` prefix: only the serverless functions in `api/` read them, so Vite never inlines them into the browser bundle. Do not commit `.env`.
+
+```bash
+npm run dev:vercel   # runs Vite + the api/ functions together (vercel dev)
+```
+
+Open the printed local URL (`http://localhost:3000` by default). The first run asks you to log in to Vercel and link the project. Plain `npm run dev` still works for frontend-only changes, but photo checks will fail there since `/api` isn't served. Uploading a photo requires real API keys with quota available — see `test-images/` for fixtures if you want to test without a physical pack.
 
 ### Other scripts
 
 ```bash
+npm run dev       # frontend only (Vite), no /api
 npm run build     # production build to dist/
-npm run preview   # serve the production build locally
 npm run lint      # oxlint
 ```
 
@@ -117,26 +128,28 @@ There's no traditional test runner wired into `npm test` — verification was do
 
 ```bash
 # Full extraction -> verification pipeline against the fixtures in test-images/,
-# using real Gemini/OpenAI calls
+# using real Gemini calls
 node --env-file=.env scripts/test-e2e.mjs
 ```
 
 See `test-images/README.md` for what each fixture covers, its expected outcome, and notes on a couple of things that were genuinely tricky to test correctly (an active-ingredient-wide recall that isn't a batch or brand match; a real-photo case that's legitimately ambiguous).
 
-## Running with Docker
+## Deploying
+
+Vercel is the only supported way to run this for now. Keys go in as **Secret** env vars (no `VITE_` prefix):
 
 ```bash
-docker compose up --build
+npx vercel env add GEMINI_API_KEY production --type secret
+npx vercel env add GEMINI_FALLBACK_API_KEY production --type secret
+npx vercel env add OPENROUTER_API_KEY production --type secret
+npx vercel deploy --prod
 ```
-
-Reads `VITE_GEMINI_API_KEY`/`VITE_OPENAI_API_KEY` from your local `.env` and passes them as build args (Vite inlines them into the client bundle at build time — the same as any static host's build step — so they can't be supplied as plain container-runtime env vars). Serves on `http://localhost:8080`.
 
 ## Known limitations
 
 - **No physical mock packs yet** for the spec's suggested demo drugs (a pack printed with batch `AC3N`, and an Otrivin pack) — `test-images/` has synthetic (rendered-text) versions that validate the pipeline but aren't a substitute for a real prop in a live demo. A real Levamisole-containing product (Retrax Worm Syrup) is available as a photographed fixture and triggers a `confirmed_alert` via active-ingredient matching.
-- **Gemini's free tier caps at 20 requests/day.** The app transparently falls back to OpenAI when this is hit, but expect to see `[vision] gemini failed, falling back to openai` in the console during heavy testing.
-- **No backend.** API keys are visible in the shipped client bundle. Fine for a demo with free-tier keys; not appropriate for a deployment with real usage limits or billing exposure without adding a serverless proxy.
-- **Not deployed yet.** `docs/MILESTONES.md` has the planned Vercel deployment steps.
+- **Gemini's free tier caps at 20 requests/day.** The app transparently retries with the fallback Gemini key when this is hit, but expect to see `[vision] gemini (primary key) failed, retrying with fallback key` in the console during heavy testing.
+- **No rate limiting on `/api`.** Keys are server-side now, but anyone can still call the endpoints and spend quota. `/api/explain` only accepts extracted fields (it re-runs verification and builds the prompt itself), so it can't be used as a general-purpose GPT-4o proxy — but a per-IP rate limit would be the next step for real usage.
 - **Gemini model migration risk.** `gemini-2.5-flash` was retired by Google mid-build; the app now targets `gemini-3.6-flash`, which showed intermittent `503` "high demand" responses during testing on both API keys simultaneously. Do a live smoke test before demoing.
 
 ## Explicitly out of scope

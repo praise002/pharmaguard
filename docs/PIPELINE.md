@@ -2,7 +2,7 @@
 
 Every box below is a real step in the code. Every JSON snippet is real output from an actual test run — nothing here is invented. Follow the Retrax example if you want to see the "unique" active-ingredient match end to end.
 
-Vision extraction (Gemini) → deterministic verification (plain JS, no AI) → explanation (OpenAI) → result screen.
+Vision extraction (Gemini) → deterministic verification (plain JS, no AI) → explanation (OpenRouter) → result screen.
 
 ## The full flow
 
@@ -28,7 +28,7 @@ flowchart TD
     L -->|reg_no missing| FLAGGED
     L -->|"brand name resembles a<br/>known one (fuzzy match)"| FLAGGED
     L -->|none of the above| NOFLAGS["⚪ no_flags_found"]
-    CONFIRMED --> O{{"OpenAI<br/>generateExplanation()"}}
+    CONFIRMED --> O{{"OpenRouter (gpt-4o)<br/>generateExplanation()"}}
     FLAGGED --> O
     NOFLAGS --> O
     O -->|success| RESULT["✅ Result screen<br/>badge + disclaimer + AI explanation"]
@@ -96,9 +96,9 @@ Real extraction → real verification → real AI explanation, from actual test 
 
 > **Why it matched:** `"levamisole 40mg/5ml".includes("levamisole")` → `true`. That's the entire check — a lowercase, trimmed substring comparison. `batch_no: "RN 262"` and `nafdac_reg_no: "04-3940"` match nothing in the dataset; they're irrelevant to this decision.
 
-↓ result object passed to OpenAI — only this JSON, never the photo
+↓ result object passed to OpenRouter (gpt-4o) — only this JSON, never the photo
 
-**3. OpenAI writes the explanation:**
+**3. OpenRouter (gpt-4o) writes the explanation:**
 
 > "This result was reached because the active ingredient in Retrax Worm Syrup, Levamisole, matches the active ingredient specified in a recall alert. The alert involves levamisole-containing medicines that have been withdrawn from the EU market after a review found that the potential risk of developing a severe neurological condition called leukoencephalopathy outweighs the benefits."
 >

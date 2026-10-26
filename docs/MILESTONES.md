@@ -63,7 +63,7 @@ Scoped to a 4–5 hour hackathon build budget. Order matches dependency order �
 ## M11 — Deploy to Vercel (15–20 min)
 - Push the repo to GitHub (Vercel deploys from a git repo, or via `vercel` CLI directly from the folder)
 - Import the project in Vercel (auto-detects Vite: build command `npm run build`, output dir `dist`) or run `vercel` / `vercel --prod` from the CLI
-- Add `VITE_GEMINI_API_KEY` and `VITE_OPENAI_API_KEY` as Environment Variables in the Vercel project settings (Settings → Environment Variables) — do not commit `.env`
+- Add `GEMINI_API_KEY`, `GEMINI_FALLBACK_API_KEY` and `OPENROUTER_API_KEY` as Secret Environment Variables in the Vercel project settings (Settings → Environment Variables) — do not commit `.env`
 - Redeploy after adding env vars (Vercel only injects them into new builds)
 - Open the deployed URL and re-run the M9 demo scenarios against production, not just localhost — confirms the env vars actually took and CORS/API calls work from the live domain
 - This gives a shareable link for judges instead of relying on localhost during the live demo
